@@ -29,7 +29,30 @@ public class App {
       for (Auto auto1 : miLista) {
         System.out.println(auto1.toString());
       }
-
     }
+
+    Auto autoModificar =
+        new Auto("Heber", "Gris", 2020, 12000,
+            Marca.Honda, "Civic");
+    autoModificar.setIdAuto(8);
+    autoDAO.update(autoModificar);
+
+    System.out.println("Auto encontrado: " + autoDAO.getById(8).toString());
+    System.out.println("Lista de autos despues de la modificacion:");
+    miLista = autoDAO.findAll();
+    if (!miLista.isEmpty()) {
+      for (Auto auto1 : miLista) {
+        System.out.println(auto1.toString());
+      }
+    }
+
+    /*
+    autoDAO.delete(16);
+    autoDAO.delete(12);
+    autoDAO.delete(17);
+    autoDAO.delete(15);
+    autoDAO.delete(14);
+    */
+
   }
 }
