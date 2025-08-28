@@ -63,7 +63,7 @@ public class AutoDAO {
         existe = true;
       }
 
-      // CIERRO TODO SIEMPRE
+      // CIERROTODO SIEMPRE
       rs.close();
       st.close();
       conn.close();

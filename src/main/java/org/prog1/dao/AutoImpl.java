@@ -19,22 +19,47 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   private static final String SQL_UPDATE =
       "UPDATE autos SET " +
-          "patente = ?" +
-          "color = ?" +
-          "anio = ?" +
-          "kilometraje = ?" +
-          "marca = ?" +
-          "modelo = ?" +
+          "patente = ?, " +
+          "color = ?, " +
+          "anio = ?, " +
+          "kilometraje = ?, " +
+          "marca = ?, " +
+          "modelo = ? " +
           "WHERE idAuto = ?";
 
   private static final String SQL_DELETE = "DELETE FROM autos WHERE idAuto = ?";
   private static final String SQL_GETALL = "SELECT * FROM autos ORDER BY patente";
   private static final String SQL_GETBYID = "SELECT * FROM autos WHERE idAuto = ?";
+  private static final String SQL_EXISTSBYID = "SELECT * FROM autos WHERE idAuto = ?";
 
 
   @Override
   public List<Auto> getAll() {
     List<Auto> lista = new ArrayList<>();
+
+    try {
+      PreparedStatement pst = conn.prepareStatement(SQL_GETALL);
+      ResultSet rs = pst.executeQuery();
+
+      while (rs.next()) {
+        Auto auto = new Auto();
+        auto.setIdAuto(rs.getInt("idAuto"));
+        auto.setPatente(rs.getString("patente"));
+        auto.setColor(rs.getString("color"));
+        auto.setAnio(rs.getInt("anio"));
+        auto.setKilometraje(rs.getInt("kilometraje"));
+        auto.setMarca(Marca.valueOf(rs.getString("marca")));
+        auto.setModelo(rs.getString("modelo"));
+
+        lista.add(auto);
+      }
+
+      rs.close();
+      pst.close();
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
     return lista;
   }
 
@@ -73,40 +98,29 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
       // 4 Cerrar conexiones
       pst.close();
       conn.close();
-
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
   public void update(Auto objeto) {
-    //establecer la conexion
-    conn = obtenerConexion();
-    // solo si el auto existe lo modifico
     if (this.existsById(objeto.getIdAuto())) {
-      String sql = "UPDATE autos SET " +
-          "patente = '" + objeto.getPatente() + "', " +
-          "color = '" + objeto.getColor() + "', " +
-          "anio = " + objeto.getAnio() + ", " +
-          "kilometraje = " + objeto.getKilometraje() + ", " +
-          "marca = '" + objeto.getMarca() + "', " +
-          "modelo = '" + objeto.getModelo() + "' " +
-          "WHERE idAuto = " + objeto.getIdAuto();
-      conn = AdministradorDeConexion.obtenerConexion();
-      // se crea un statement
-      Statement st = null;
-
       try {
-        st = conn.createStatement();
-        st.execute(sql);
+        PreparedStatement pst = conn.prepareStatement(SQL_UPDATE); //establecer la conexion
 
-        // cierro
-        st.close();
-        conn.close();
+        pst.setString(1, objeto.getPatente());
+        pst.setString(2, objeto.getColor());
+        pst.setInt(3, objeto.getAnio());
+        pst.setInt(4, objeto.getKilometraje());
+        pst.setString(5, objeto.getMarca().toString());
+        pst.setString(6, objeto.getModelo());
+        pst.setInt(7, objeto.getIdAuto());
+
+        pst.executeUpdate(); //executo la consulta(update)
+
+        pst.close(); // cierro conexion
       } catch (SQLException e) {
-        System.out.println("Error al crear el statement");
         throw new RuntimeException(e);
       }
     }
@@ -114,33 +128,31 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   @Override
   public void delete(Integer id) {
-    conn = AdministradorDeConexion.obtenerConexion();
-    String sql = "DELETE FROM autos WHERE idAuto = " + id;
-    Statement st = null;
     try {
-      st = conn.createStatement(); // creo el statement
-      st.execute(sql); // ejecuto la consulta
-      st.close(); // cierro statement
-      conn.close(); // cierro conexion
+      PreparedStatement pst = conn.prepareStatement(SQL_DELETE);
+
+      pst.setInt(1, id);
+
+      pst.executeUpdate();
+
+      pst.close();
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
-
   @Override
   public Auto getById(Integer id) {
-    conn = AdministradorDeConexion.obtenerConexion();
-    String sql = "SELECT * FROM autos WHERE idAuto = " + id;
-    // se crea un statement
-    Statement st = null;
-    ResultSet rs = null;
     Auto auto = new Auto();
+    PreparedStatement pst = null;
+    ResultSet rs = null;
 
     try {
-      st = conn.createStatement(); // creo statement
-      rs = st.executeQuery(sql); // ejecuto consulta
-      // Si la consuta devuelve al menos un registro, existe
+      pst = conn.prepareStatement(SQL_GETBYID);
+      pst.setInt(1, id);
+      rs = pst.executeQuery();
+
       if (rs.next()) {
         auto.setIdAuto(rs.getInt("idAuto"));
         auto.setPatente(rs.getString("patente"));
@@ -151,10 +163,8 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
         auto.setModelo(rs.getString("modelo"));
       }
 
-      // CIERRO TODO SIEMPRE
+      pst.close();
       rs.close();
-      st.close();
-      conn.close();
 
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -164,26 +174,21 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   @Override
   public boolean existsById(Integer id) {
-    conn = AdministradorDeConexion.obtenerConexion();
-    String sql = "SELECT * FROM autos WHERE idAuto = " + id;
-    // se crea un statement
-    Statement st = null;
+    PreparedStatement pst = null;
     ResultSet rs = null;
     boolean existe = false;
 
     try {
-      st = conn.createStatement(); // creo statement
-      rs = st.executeQuery(sql); // ejecuto consulta
-      // Si la consuta devuelve al menos un registro, existe
+      pst = conn.prepareStatement(SQL_EXISTSBYID);
+      pst.setInt(1, id);
+      rs = pst.executeQuery();
+
       if (rs.next()) {
         existe = true;
       }
 
-      //CIERROTODO LO CREADO
+      pst.close();
       rs.close();
-      st.close();
-      conn.close();
-
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
