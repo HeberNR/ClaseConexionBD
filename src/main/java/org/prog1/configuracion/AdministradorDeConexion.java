@@ -15,10 +15,10 @@ public class AdministradorDeConexion {
     String dbCadenaDeConexion = "jdbc:mysql://127.0.0.1:3306/progautos";
 
     // nom usuario
-    String dbUsuario = "root";
+    String dbUsuario = "admin";
 
     // pass bd
-    String dbPass = "123456";
+    String dbPass = "123456heber";
 
     Connection conn = null;
 

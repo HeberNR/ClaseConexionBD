@@ -2,6 +2,7 @@ package org.prog1;
 
 import org.prog1.configuracion.AdministradorDeConexion;
 import org.prog1.dao.AutoDAO;
+import org.prog1.dao.AutoImpl;
 import org.prog1.entities.Auto;
 import org.prog1.entities.Marca;
 
@@ -53,6 +54,13 @@ public class App {
     autoDAO.delete(15);
     autoDAO.delete(14);
     */
+
+    Auto autoTest =
+        new Auto ("ABC12KL", "Blanco", 2025,
+            1000, Marca.Chevrolet, "Onix");
+
+    AutoImpl autoImpl = new AutoImpl();
+    autoImpl.insert(autoTest);
 
   }
 }
