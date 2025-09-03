@@ -128,18 +128,23 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   @Override
   public void delete(Integer id) {
+    Connection conn = this.obtenerConexion();
+
     try {
       PreparedStatement pst = conn.prepareStatement(SQL_DELETE);
-
       pst.setInt(1, id);
-
-      pst.executeUpdate();
-
+      int resultado = pst.executeUpdate();
+      if (resultado == 1) {
+        System.out.println("Auto eliminado correctamente");
+      } else {
+        System.out.println("No se pudo eliminar el auto");
+      }
       pst.close();
-
+      conn.close();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      System.out.println("No se pudo eliminar el auto. Error: " + e.getMessage());
     }
+
   }
 
   @Override

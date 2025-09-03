@@ -1,6 +1,7 @@
 package org.prog1.dao;
 
 import org.prog1.entities.Cliente;
+import org.prog1.entities.Seguro;
 import org.prog1.interfaces.AdmConexion;
 import org.prog1.interfaces.DAO;
 
@@ -8,45 +9,46 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+public class SeguroDAO implements AdmConexion, DAO<Seguro, Integer> {
 
-public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
   private Connection conn = null;
 
   private static String SQL_INSERT =
-      "INSERT INTO clientes (nombre, apellido, telefono) " +
+      "INSERT INTO seguro (tipo, costoMensual, compañia) " +
           "VALUES (?, ?, ?)";
   private static String SQL_UPDATE =
-      "UPDATE clientes SET" +
-          "nombre = ?," +
-          "apellido = ?," +
-          "telefono = ?" +
-          "WHERE idCliente = ?";
-  private static String SQL_DELETE = "DELETE FROM clientes WHERE idCliente = ?";
-  private static String SQL_GETALL = "SELECT * FROM clientes ORDER BY nombre";
-  private static String SQL_GETBYID = "SELECT * FROM clientes WHERE idCliente = ?";
-  private static String SQL_EXISTSBYID = "SELECT * FROM clientes WHERE idCliente = ?";
+      "UPDATE seguro SET" +
+          "tipo = ?," +
+          "costoMensual = ?," +
+          "compañia = ?" +
+          "WHERE idSeguro = ?";
+  private static String SQL_DELETE = "DELETE FROM seguro WHERE idSeguro = ?";
+  private static String SQL_GETALL = "SELECT * FROM seguro ORDER BY tipo";
+  private static String SQL_GETBYID = "SELECT * FROM seguro WHERE idSeguro = ?";
+  private static String SQL_EXISTSBYID = "SELECT * FROM seguro WHERE idSeguro = ?";
+
 
   @Override
-  public List<Cliente> getAll() {
+  public List<Seguro> getAll() {
     conn = obtenerConexion();
 
     PreparedStatement pst = null;
     ResultSet rs = null;
 
-    List<Cliente> lista = new ArrayList<>();
+    List<Seguro> lista = new ArrayList<>();
 
     try {
       pst = conn.prepareStatement(SQL_GETALL);
       rs = pst.executeQuery();
 
       while (rs.next()) {
-        Cliente cliente = new Cliente();
-        cliente.setIdCliente(rs.getInt("idCliente"));
-        cliente.setNombre(rs.getString("nombre"));
-        cliente.setApellido(rs.getString("apellido"));
-        cliente.setTelefono(rs.getString("telefono"));
+        Seguro seguro = new Seguro();
+        seguro.setIdSeguro(rs.getInt("idSeguro"));
+        seguro.setTipo(rs.getString("tipo"));
+        seguro.setCostoMensual(rs.getDouble("costoMensual"));
+        seguro.setCompañia(rs.getString("compañia"));
 
-        lista.add(cliente);
+        lista.add(seguro);
       }
 
       pst.close();
@@ -60,31 +62,31 @@ public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
   }
 
   @Override
-  public void insert(Cliente objeto) {
+  public void insert(Seguro objeto) {
     conn = obtenerConexion();
     PreparedStatement pst = null;
     ResultSet rs = null;
-    Cliente cliente = objeto;
+    Seguro seguro = objeto;
 
     try {
       pst = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
 
-      pst.setString(1, cliente.getNombre());
-      pst.setString(2, cliente.getApellido());
-      pst.setString(3, cliente.getTelefono());
+      pst.setString(1, seguro.getTipo());
+      pst.setDouble(2, seguro.getCostoMensual());
+      pst.setString(3, seguro.getCompañia());
 
       int resultado = pst.executeUpdate();
       if (resultado == 1) {
-        System.out.println("Cliente agregado correctamente.");
+        System.out.println("Seguro agregado correctamente.");
       } else {
-        System.out.println("No se pudo agregar el cliente.");
+        System.out.println("No se pudo agregar el seguro.");
       }
 
       rs = pst.getGeneratedKeys();
 
       if (rs.next()) {
-        cliente.setIdCliente(rs.getInt(1));
-        System.out.println("El id asignado es: " + cliente.getIdCliente());
+        seguro.setIdSeguro(rs.getInt(1));
+        System.out.println("El id asignado es: " + seguro.getIdSeguro());
       }
 
       pst.close();
@@ -96,22 +98,22 @@ public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
   }
 
   @Override
-  public void update(Cliente objeto) {
+  public void update(Seguro objeto) {
     conn = obtenerConexion();
-    if (this.existsById(objeto.getIdCliente())) {
+    if (this.existsById(objeto.getIdSeguro())) {
       try {
         PreparedStatement pst = conn.prepareStatement(SQL_UPDATE);
 
-        pst.setString(1, objeto.getNombre());
-        pst.setString(2, objeto.getApellido());
-        pst.setString(3, objeto.getTelefono());
-        pst.setInt(4, objeto.getIdCliente());
+        pst.setString(1, objeto.getTipo());
+        pst.setDouble(2, objeto.getCostoMensual());
+        pst.setString(3, objeto.getCompañia());
+        pst.setInt(4, objeto.getIdSeguro());
 
         int resultado = pst.executeUpdate();
         if (resultado == 1) {
-          System.out.println("Cliente actualizado correctamente");
+          System.out.println("Seguro actualizado correctamente");
         } else {
-          System.out.println("No se pudo actualizar el cliente");
+          System.out.println("No se pudo actualizar el seguro");
         }
         pst.close();
         conn.close();
@@ -130,24 +132,24 @@ public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
       int resultado = pst.executeUpdate();
 
       if (resultado == 1) {
-        System.out.println("Cliente eliminado correctamente");
+        System.out.println("Seguro eliminado correctamente");
       } else {
-        System.out.println("No se pudo eliminar el cliente");
+        System.out.println("No se pudo eliminar el seguro");
       }
 
       pst.close();
       conn.close();
     } catch (SQLException e) {
-      System.out.println("No se pudo eliminar el cliente. Error: " + e.getMessage());
+      System.out.println("No se pudo eliminar el seguro. Error: " + e.getMessage());
     }
   }
 
   @Override
-  public Cliente getById(Integer id) {
+  public Seguro getById(Integer id) {
     conn = obtenerConexion();
     PreparedStatement pst = null;
     ResultSet rs = null;
-    Cliente cliente = null;
+    Seguro seguro = null;
 
     try {
       pst = conn.prepareStatement(SQL_EXISTSBYID);
@@ -155,11 +157,11 @@ public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
       rs = pst.executeQuery(); //ejecuto la consulta
       //Si la consulta devuelve al menos 1 regristo, existe
       if (rs.next()) {
-        cliente = new Cliente();
-        cliente.setIdCliente(rs.getInt("idCliente"));
-        cliente.setNombre((rs.getString("nombre")));
-        cliente.setApellido(rs.getString("apellido"));
-        cliente.setTelefono(rs.getString("telefono"));
+        seguro = new Seguro();
+        seguro.setIdSeguro(rs.getInt("idSeguro"));
+        seguro.setTipo((rs.getString("tipo")));
+        seguro.setCostoMensual(rs.getDouble("costoMensual"));
+        seguro.setCompañia(rs.getString("compañia"));
       }
 
       pst.close();
@@ -170,7 +172,7 @@ public class ClienteDAO implements AdmConexion, DAO<Cliente, Integer> {
       throw new RuntimeException(e);
     }
 
-    return cliente;
+    return seguro;
   }
 
   @Override
