@@ -14,8 +14,8 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
   private Connection conn = null;
 
   private static final String SQL_INSERT =
-      "INSERT INTO autos (patente, color, anio, kilometraje, marca, modelo)" +
-          "VALUES (?, ?, ?, ?, ?, ?)";
+      "INSERT INTO autos (patente, color, anio, kilometraje, marca, modelo, idCliente, idSeguro)" +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
   private static final String SQL_UPDATE =
       "UPDATE autos SET " +
@@ -80,6 +80,8 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
       pst.setInt(4, objeto.getKilometraje());
       pst.setString(5, objeto.getMarca().toString());
       pst.setString(6, objeto.getModelo());
+      pst.setInt(7, objeto.getCliente().getIdCliente());
+      pst.setInt(8, objeto.getSeguro().getIdSeguro());
 
       // 3 Ejecutar la instruccion
       int resultado = pst.executeUpdate();
