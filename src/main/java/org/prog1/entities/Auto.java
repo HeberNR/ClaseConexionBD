@@ -16,13 +16,16 @@ public class Auto implements Comparable<Auto> {
 
 
   public Auto() {
-    idAuto = -1;
+    this.cliente = new Cliente();
+    this.seguro = new Seguro();
   }
 
 
   public Auto(String patente) {
     idAuto = -1;
     this.patente = patente;
+    this.cliente = new Cliente();
+    this.seguro = new Seguro();
   }
 
   public Auto(String patente, String color, int anio, int kilometraje, Marca marca,
@@ -123,6 +126,20 @@ public class Auto implements Comparable<Auto> {
     this.modelo = modelo;
   }
 
+  @Override
+  public String toString() {
+    return "Auto{" +
+        "idAuto=" + idAuto +
+        ", patente='" + patente + '\'' +
+        ", color='" + color + '\'' +
+        ", anio=" + anio +
+        ", kilometraje=" + kilometraje +
+        ", marca=" + marca +
+        ", modelo='" + modelo + '\'' +
+        ", cliente=" + cliente +
+        ", seguro=" + seguro +
+        '}';
+  }
 
   @Override
   public boolean equals(Object o) {

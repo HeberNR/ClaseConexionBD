@@ -1,6 +1,5 @@
 package org.prog1;
 
-
 import org.prog1.dao.AutoImpl;
 import org.prog1.dao.ClienteDAO;
 import org.prog1.dao.SeguroDAO;
@@ -8,9 +7,6 @@ import org.prog1.entities.Auto;
 import org.prog1.entities.Cliente;
 import org.prog1.entities.Marca;
 import org.prog1.entities.Seguro;
-import org.prog1.interfaces.AdmConexion;
-
-import java.sql.Connection;
 
 public class App {
   public static void main(String[] args) {

@@ -65,43 +65,51 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   @Override
   public void insert(Auto objeto) {
-
     // 1 establecer conexion a la base de datos
     conn = obtenerConexion();
+    ClienteDAO clienteDAO = new ClienteDAO();
+    SeguroDAO seguroDAO = new SeguroDAO();
 
-    // 2 Crear string de consulta SQL
-    PreparedStatement pst = null;
-    try {
-      pst = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
+    boolean existeCliente = clienteDAO.existsById(objeto.getCliente().getIdCliente());
+    boolean existeSeguro = seguroDAO.existsById(objeto.getSeguro().getIdSeguro());
 
-      pst.setString(1, objeto.getPatente());
-      pst.setString(2, objeto.getColor());
-      pst.setInt(3, objeto.getAnio());
-      pst.setInt(4, objeto.getKilometraje());
-      pst.setString(5, objeto.getMarca().toString());
-      pst.setString(6, objeto.getModelo());
-      pst.setInt(7, objeto.getCliente().getIdCliente());
-      pst.setInt(8, objeto.getSeguro().getIdSeguro());
+    //solo guardo si existe el cliente y el seguro en la base de datos
+    if (existeSeguro && existeCliente) {
 
-      // 3 Ejecutar la instruccion
-      int resultado = pst.executeUpdate();
-      if (resultado == 1) {
-        System.out.println("Auto insertado correctamente");
-      } else {
-        System.out.println("No se pudo insertar el auto");
+      // 2 Crear string de consulta SQL
+      PreparedStatement pst = null;
+      try {
+        pst = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
+
+        pst.setString(1, objeto.getPatente());
+        pst.setString(2, objeto.getColor());
+        pst.setInt(3, objeto.getAnio());
+        pst.setInt(4, objeto.getKilometraje());
+        pst.setString(5, objeto.getMarca().toString());
+        pst.setString(6, objeto.getModelo());
+        pst.setInt(7, objeto.getCliente().getIdCliente());
+        pst.setInt(8, objeto.getSeguro().getIdSeguro());
+
+        // 3 Ejecutar la instruccion
+        int resultado = pst.executeUpdate();
+        if (resultado == 1) {
+          System.out.println("Auto insertado correctamente");
+        } else {
+          System.out.println("No se pudo insertar el auto");
+        }
+
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+          objeto.setIdAuto(rs.getInt(1));
+          System.out.println("El id asignado es el: " + objeto.getIdAuto());
+        }
+
+        // 4 Cerrar conexiones
+        pst.close();
+        conn.close();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
       }
-
-      ResultSet rs = pst.getGeneratedKeys();
-      if (rs.next()) {
-        objeto.setIdAuto(rs.getInt(1));
-        System.out.println("El id asignado es el: " + objeto.getIdAuto());
-      }
-
-      // 4 Cerrar conexiones
-      pst.close();
-      conn.close();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
     }
   }
 
