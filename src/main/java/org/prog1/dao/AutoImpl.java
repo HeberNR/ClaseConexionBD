@@ -115,23 +115,30 @@ public class AutoImpl implements AdmConexion, DAO<Auto, Integer> {
 
   @Override
   public void update(Auto objeto) {
-    if (this.existsById(objeto.getIdAuto())) {
-      try {
-        PreparedStatement pst = conn.prepareStatement(SQL_UPDATE); //establecer la conexion
+    ClienteDAO clienteDAO = new ClienteDAO();
+    SeguroDAO seguroDAO = new SeguroDAO();
+    boolean existeCliente = clienteDAO.existsById(objeto.getCliente().getIdCliente());
+    boolean existeSeguro = seguroDAO.existsById(objeto.getSeguro().getIdSeguro());
+    if (existeCliente && existeSeguro) {
 
-        pst.setString(1, objeto.getPatente());
-        pst.setString(2, objeto.getColor());
-        pst.setInt(3, objeto.getAnio());
-        pst.setInt(4, objeto.getKilometraje());
-        pst.setString(5, objeto.getMarca().toString());
-        pst.setString(6, objeto.getModelo());
-        pst.setInt(7, objeto.getIdAuto());
+      if (this.existsById(objeto.getIdAuto())) {
+        try {
+          PreparedStatement pst = conn.prepareStatement(SQL_UPDATE); //establecer la conexion
 
-        pst.executeUpdate(); //executo la consulta(update)
+          pst.setString(1, objeto.getPatente());
+          pst.setString(2, objeto.getColor());
+          pst.setInt(3, objeto.getAnio());
+          pst.setInt(4, objeto.getKilometraje());
+          pst.setString(5, objeto.getMarca().toString());
+          pst.setString(6, objeto.getModelo());
+          pst.setInt(7, objeto.getIdAuto());
 
-        pst.close(); // cierro conexion
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
+          pst.executeUpdate(); //executo la consulta(update)
+
+          pst.close(); // cierro conexion
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
       }
     }
   }
